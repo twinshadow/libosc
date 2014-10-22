@@ -21,11 +21,10 @@
  *     distribution.
  */
 
-#include <string.h>
+#include <osc.h>
+
 #include <stdarg.h>
 #include <ctype.h>
-
-#include <osc.h>
 
 // characters not allowed in OSC path string
 static const char invalid_path_chars [] = {

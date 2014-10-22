@@ -30,6 +30,7 @@ extern "C" {
 
 #include <arpa/inet.h> // hton & co.
 #include <stdint.h>
+#include <string.h>
 
 #define quads(size) (((((size_t)size-1) & ~0x3) >> 2) + 1)
 #define round_to_four_bytes(size) (quads((size_t)size) << 2)
