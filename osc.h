@@ -117,8 +117,8 @@ union _osc_argument_t {
 int osc_check_path(const char *path);
 int osc_check_fmt(const char *format, int offset);
 
-int osc_method_match(osc_method_t *methods, const char *path, const char *fmt);
-void osc_method_dispatch(osc_time_t time, osc_data_t *buf, size_t size, osc_method_t *methods, osc_bundle_in_cb_t bundle_in, osc_bundle_out_cb_t bundle_out, void *dat);
+int osc_match_method(osc_method_t *methods, const char *path, const char *fmt);
+void osc_dispatch_method(osc_time_t time, osc_data_t *buf, size_t size, osc_method_t *methods, osc_bundle_in_cb_t bundle_in, osc_bundle_out_cb_t bundle_out, void *dat);
 
 typedef enum _osc_unroll_mode_t osc_unroll_mode_t;
 typedef void (*osc_unroll_stamp_inject_cb_t) (osc_time_t tstamp, void *dat);
@@ -138,11 +138,11 @@ struct _osc_unroll_inject_t {
 	osc_unroll_bundle_inject_cb_t bundle;
 };
 
-int osc_packet_unroll(osc_data_t *buf, size_t size, osc_unroll_mode_t mode, osc_unroll_inject_t *inject, void*dat);
+int osc_unroll_packet(osc_data_t *buf, size_t size, osc_unroll_mode_t mode, osc_unroll_inject_t *inject, void*dat);
 
-int osc_message_check(osc_data_t *buf, size_t size);
-int osc_bundle_check(osc_data_t *buf, size_t size);
-int osc_packet_check(osc_data_t *buf, size_t size);
+int osc_check_message(osc_data_t *buf, size_t size);
+int osc_check_bundle(osc_data_t *buf, size_t size);
+int osc_check_packet(osc_data_t *buf, size_t size);
 
 // OSC object lengths
 __always_inline size_t
@@ -295,7 +295,7 @@ osc_get_midi(osc_data_t *buf, uint8_t **m)
 
 osc_data_t *osc_skip(osc_type_t type, osc_data_t *buf);
 osc_data_t *osc_get(osc_type_t type, osc_data_t *buf, osc_argument_t *arg);
-osc_data_t *osc_vararg_get(osc_data_t *buf, const char **path, const char **fmt, ...);
+osc_data_t *osc_get_vararg(osc_data_t *buf, const char **path, const char **fmt, ...);
 
 // write OSC argument to raw buffer
 __always_inline osc_data_t *
@@ -496,7 +496,7 @@ osc_end_bundle_item(osc_data_t *buf, const osc_data_t *end, osc_data_t *itm)
 }
 
 osc_data_t *osc_set(osc_data_t *buf, const osc_data_t *end, osc_type_t type, osc_argument_t *arg);
-osc_data_t *osc_vararg_set(osc_data_t *buf, const osc_data_t *end, const char *path, const char *fmt, ...);
+osc_data_t *osc_set_vararg(osc_data_t *buf, const osc_data_t *end, const char *path, const char *fmt, ...);
 
 #ifdef __cplusplus
 }

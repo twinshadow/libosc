@@ -75,7 +75,7 @@ osc_check_fmt(const char *format, int offset)
 }
 
 int
-osc_method_match(osc_method_t *methods, const char *path, const char *fmt)
+osc_match_method(osc_method_t *methods, const char *path, const char *fmt)
 {
 	osc_method_t *meth;
 	for(meth=methods; meth->cb; meth++)
@@ -135,7 +135,7 @@ _osc_method_dispatch_bundle(uint64_t time, osc_data_t *buf, size_t size, osc_met
 }
 
 void
-osc_method_dispatch(uint64_t time, osc_data_t *buf, size_t size, osc_method_t *methods, osc_bundle_in_cb_t bundle_in, osc_bundle_out_cb_t bundle_out, void *dat)
+osc_dispatch_method(uint64_t time, osc_data_t *buf, size_t size, osc_method_t *methods, osc_bundle_in_cb_t bundle_in, osc_bundle_out_cb_t bundle_out, void *dat)
 {
 	switch(*buf)
 	{
@@ -286,7 +286,7 @@ _unroll_full(osc_data_t *buf, size_t size, osc_unroll_inject_t *inject, void *da
 }
 
 int
-osc_packet_unroll(osc_data_t *buf, size_t size, osc_unroll_mode_t mode, osc_unroll_inject_t *inject, void *dat)
+osc_unroll_packet(osc_data_t *buf, size_t size, osc_unroll_mode_t mode, osc_unroll_inject_t *inject, void *dat)
 {
 	char c = *(char *)buf;
 	switch(c)
@@ -318,7 +318,7 @@ osc_packet_unroll(osc_data_t *buf, size_t size, osc_unroll_mode_t mode, osc_unro
 }
 
 int
-osc_message_check(osc_data_t *buf, size_t size)
+osc_check_message(osc_data_t *buf, size_t size)
 {
 	osc_data_t *ptr = buf;
 	osc_data_t *end = buf + size;
@@ -373,7 +373,7 @@ osc_message_check(osc_data_t *buf, size_t size)
 }
 
 int
-osc_bundle_check(osc_data_t *buf, size_t size)
+osc_check_bundle(osc_data_t *buf, size_t size)
 {
 	osc_data_t *ptr = buf;
 	osc_data_t *end = buf + size;
@@ -391,11 +391,11 @@ osc_bundle_check(osc_data_t *buf, size_t size)
 		switch(*ptr)
 		{
 			case '#':
-				if(!osc_bundle_check(ptr, hlen))
+				if(!osc_check_bundle(ptr, hlen))
 					return 0;
 				break;
 			case '/':
-				if(!osc_message_check(ptr, hlen))
+				if(!osc_check_message(ptr, hlen))
 					return 0;
 				break;
 			default:
@@ -408,18 +408,18 @@ osc_bundle_check(osc_data_t *buf, size_t size)
 }
 
 int
-osc_packet_check(osc_data_t *buf, size_t size)
+osc_check_packet(osc_data_t *buf, size_t size)
 {
 	osc_data_t *ptr = buf;
 	
 	switch(*ptr)
 	{
 		case '#':
-			if(!osc_bundle_check(ptr, size))
+			if(!osc_check_bundle(ptr, size))
 				return 0;
 			break;
 		case '/':
-			if(!osc_message_check(ptr, size))
+			if(!osc_check_message(ptr, size))
 				return 0;
 			break;
 		default:
@@ -524,7 +524,7 @@ osc_get(osc_type_t type, osc_data_t *buf, osc_argument_t *arg)
 }
 
 osc_data_t *
-osc_vararg_get(osc_data_t *buf, const char **path, const char **fmt, ...)
+osc_get_vararg(osc_data_t *buf, const char **path, const char **fmt, ...)
 {
 	osc_data_t *ptr = buf;
 
@@ -650,7 +650,7 @@ osc_set(osc_data_t *buf, const osc_data_t *end, osc_type_t type, osc_argument_t 
 }
 
 osc_data_t *
-osc_vararg_set(osc_data_t *buf, const osc_data_t *end, const char *path, const char *fmt, ...)
+osc_set_vararg(osc_data_t *buf, const osc_data_t *end, const char *path, const char *fmt, ...)
 {
 	osc_data_t *ptr = buf;
 
