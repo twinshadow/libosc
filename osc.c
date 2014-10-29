@@ -99,7 +99,7 @@ _osc_method_dispatch_message(uint64_t time, osc_data_t *buf, size_t size, osc_me
 	osc_method_t *meth;
 	for(meth=methods; meth->cb; meth++)
 		if( (!meth->path || !strcmp(meth->path, path)) && (!meth->fmt || !strcmp(meth->fmt, fmt+1)) )
-			if(meth->cb(time, path, fmt+1, ptr, dat))
+			if(meth->cb(time, path, fmt+1, ptr, size-(ptr-buf), dat))
 				break;
 }
 
@@ -116,7 +116,7 @@ _osc_method_dispatch_bundle(uint64_t time, osc_data_t *buf, size_t size, osc_met
 
 	while(ptr < end)
 	{
-		int32_t len = ntohl(*((int32_t *)ptr));
+		int32_t len = be32toh(*((int32_t *)ptr));
 		ptr += sizeof(int32_t);
 		switch(*ptr)
 		{
@@ -158,7 +158,7 @@ _unroll_partial(osc_data_t *buf, size_t size, osc_unroll_inject_t *inject, void 
 	osc_data_t *end = buf + size;
 	osc_data_t *ptr = buf;
 
-	uint64_t timetag = ntohll(*(uint64_t *)(buf + 8));
+	uint64_t timetag = be64toh(*(uint64_t *)(buf + 8));
 	inject->stamp(timetag, dat);
 
 	int has_messages = 0;
@@ -168,7 +168,7 @@ _unroll_partial(osc_data_t *buf, size_t size, osc_unroll_inject_t *inject, void 
 	while(ptr < end)
 	{
 		int32_t *size = (int32_t *)ptr;
-		int32_t hsize = htonl(*size);
+		int32_t hsize = be32toh(*size);
 		ptr += sizeof(int32_t);
 
 		char c = *(char *)ptr;
@@ -206,7 +206,7 @@ _unroll_partial(osc_data_t *buf, size_t size, osc_unroll_inject_t *inject, void 
 	while(ptr < end)
 	{
 		int32_t *size = (int32_t *)ptr;
-		int32_t hsize = htonl(*size);
+		int32_t hsize = be32toh(*size);
 		ptr += sizeof(int32_t);
 
 		char *c = (char *)ptr;
@@ -235,7 +235,7 @@ _unroll_full(osc_data_t *buf, size_t size, osc_unroll_inject_t *inject, void *da
 	osc_data_t *end = buf + size;
 	osc_data_t *ptr = buf;
 
-	uint64_t timetag = ntohll(*(uint64_t *)(buf + 8));
+	uint64_t timetag = be64toh(*(uint64_t *)(buf + 8));
 	inject->stamp(timetag, dat);
 
 	int has_nested_bundles = 0;
@@ -244,7 +244,7 @@ _unroll_full(osc_data_t *buf, size_t size, osc_unroll_inject_t *inject, void *da
 	while(ptr < end)
 	{
 		int32_t *size = (int32_t *)ptr;
-		int32_t hsize = htonl(*size);
+		int32_t hsize = be32toh(*size);
 		ptr += sizeof(int32_t);
 
 		char c = *(char *)ptr;
@@ -271,7 +271,7 @@ _unroll_full(osc_data_t *buf, size_t size, osc_unroll_inject_t *inject, void *da
 	while(ptr < end)
 	{
 		int32_t *size = (int32_t *)ptr;
-		int32_t hsize = htonl(*size);
+		int32_t hsize = be32toh(*size);
 		ptr += sizeof(int32_t);
 
 		char *c = (char *)ptr;
@@ -385,7 +385,7 @@ osc_bundle_check(osc_data_t *buf, size_t size)
 	while(ptr < end)
 	{
 		int32_t *len = (int32_t *)ptr;
-		int32_t hlen = htonl(*len);
+		int32_t hlen = be32toh(*len);
 		ptr += sizeof(int32_t);
 
 		switch(*ptr)
@@ -589,49 +589,49 @@ osc_vararg_get(osc_data_t *buf, const char **path, const char **fmt, ...)
 	return len;
 }
 
-extern osc_data_t *osc_set_path(osc_data_t *buf, const char *path);
-extern osc_data_t *osc_set_fmt(osc_data_t *buf, const char *fmt);
+extern osc_data_t *osc_set_path(osc_data_t *buf, const osc_data_t *end, const char *path);
+extern osc_data_t *osc_set_fmt(osc_data_t *buf, const osc_data_t *end, const char *fmt);
 
-extern osc_data_t *osc_set_int32(osc_data_t *buf, int32_t i);
-extern osc_data_t *osc_set_float(osc_data_t *buf, float f);
-extern osc_data_t *osc_set_string(osc_data_t *buf, const char *s);
-extern osc_data_t *osc_set_blob(osc_data_t *buf, int32_t size, void *payload);
-extern osc_data_t *osc_set_blob_inline(osc_data_t *buf, int32_t size, void **payload);
+extern osc_data_t *osc_set_int32(osc_data_t *buf, const osc_data_t *end, int32_t i);
+extern osc_data_t *osc_set_float(osc_data_t *buf, const osc_data_t *end, float f);
+extern osc_data_t *osc_set_string(osc_data_t *buf, const osc_data_t *end, const char *s);
+extern osc_data_t *osc_set_blob(osc_data_t *buf, const osc_data_t *end, int32_t size, void *payload);
+extern osc_data_t *osc_set_blob_inline(osc_data_t *buf, const osc_data_t *end, int32_t size, void **payload);
 
-extern osc_data_t *osc_set_int64(osc_data_t *buf, int64_t h);
-extern osc_data_t *osc_set_double(osc_data_t *buf, double d);
-extern osc_data_t *osc_set_timetag(osc_data_t *buf, uint64_t t);
+extern osc_data_t *osc_set_int64(osc_data_t *buf, const osc_data_t *end, int64_t h);
+extern osc_data_t *osc_set_double(osc_data_t *buf, const osc_data_t *end, double d);
+extern osc_data_t *osc_set_timetag(osc_data_t *buf, const osc_data_t *end, uint64_t t);
 
-extern osc_data_t *osc_set_symbol(osc_data_t *buf, const char *S);
-extern osc_data_t *osc_set_char(osc_data_t *buf, char c);
-extern osc_data_t *osc_set_midi(osc_data_t *buf, uint8_t *m);
-extern osc_data_t *osc_set_midi_inline(osc_data_t *buf, uint8_t **m);
+extern osc_data_t *osc_set_symbol(osc_data_t *buf, const osc_data_t *end, const char *S);
+extern osc_data_t *osc_set_char(osc_data_t *buf, const osc_data_t *end, char c);
+extern osc_data_t *osc_set_midi(osc_data_t *buf, const osc_data_t *end, uint8_t *m);
+extern osc_data_t *osc_set_midi_inline(osc_data_t *buf, const osc_data_t *end, uint8_t **m);
 
-extern osc_data_t *osc_start_bundle(osc_data_t *buf, uint64_t t, osc_data_t **bndl);
-extern osc_data_t *osc_end_bundle(osc_data_t *buf, osc_data_t *bndl);
-extern osc_data_t *osc_start_bundle_item(osc_data_t *buf, osc_data_t **itm);
-extern osc_data_t *osc_end_bundle_item(osc_data_t *buf, osc_data_t *itm);
+extern osc_data_t *osc_start_bundle(osc_data_t *buf, const osc_data_t *end, uint64_t t, osc_data_t **bndl);
+extern osc_data_t *osc_end_bundle(osc_data_t *buf, const osc_data_t *end, osc_data_t *bndl);
+extern osc_data_t *osc_start_bundle_item(osc_data_t *buf, const osc_data_t *end, osc_data_t **itm);
+extern osc_data_t *osc_end_bundle_item(osc_data_t *buf, const osc_data_t *end, osc_data_t *itm);
 
 osc_data_t *
-osc_set(osc_type_t type, osc_data_t *buf, osc_argument_t *arg)
+osc_set(osc_data_t *buf, const osc_data_t *end, osc_type_t type, osc_argument_t *arg)
 {
 	switch(type)
 	{
 		case OSC_INT32:
-			return osc_set_int32(buf, arg->i);
+			return osc_set_int32(buf, end, arg->i);
 		case OSC_FLOAT:
-			return osc_set_float(buf, arg->f);
+			return osc_set_float(buf, end, arg->f);
 		case OSC_STRING:
-			return osc_set_string(buf, arg->s);
+			return osc_set_string(buf, end, arg->s);
 		case OSC_BLOB:
-			return osc_set_blob(buf, arg->b.size, arg->b.payload);
+			return osc_set_blob(buf, end, arg->b.size, arg->b.payload);
 
 		case OSC_INT64:
-			return osc_set_int64(buf, arg->h);
+			return osc_set_int64(buf, end, arg->h);
 		case OSC_DOUBLE:
-			return osc_set_double(buf, arg->d);
+			return osc_set_double(buf, end, arg->d);
 		case OSC_TIMETAG:
-			return osc_set_timetag(buf, arg->t);
+			return osc_set_timetag(buf, end, arg->t);
 
 		case OSC_TRUE:
 		case OSC_FALSE:
@@ -640,56 +640,62 @@ osc_set(osc_type_t type, osc_data_t *buf, osc_argument_t *arg)
 			return buf;
 
 		case OSC_SYMBOL:
-			return osc_set_symbol(buf, arg->S);
+			return osc_set_symbol(buf, end, arg->S);
 		case OSC_CHAR:
-			return osc_set_char(buf, arg->c);
+			return osc_set_char(buf, end, arg->c);
 		case OSC_MIDI:
-			return osc_set_midi(buf, arg->m);
+			return osc_set_midi(buf, end, arg->m);
 
 		default:
-			//TODO report error
-			return buf;
+			return NULL;
 	}
 }
 
-size_t
-osc_vararg_set(osc_data_t *buf, const char *path, const char *fmt, ...)
+osc_data_t *
+osc_vararg_set(osc_data_t *buf, const osc_data_t *end, const char *path, const char *fmt, ...)
 {
 	osc_data_t *ptr = buf;
 
-	if(!(ptr = osc_set_path(ptr, path)))
-		return 0;
-	if(!(ptr = osc_set_fmt(ptr, fmt)))
-		return 0;
-
   va_list args;
   va_start (args, fmt);
+
+	if(!(ptr = osc_set_path(ptr, end, path)))
+		goto cleanup;
+	if(!(ptr = osc_set_fmt(ptr, end, fmt)))
+		goto cleanup;
 
   const char *type;
   for(type=fmt; *type != '\0'; type++)
 		switch(*type)
 		{
 			case OSC_INT32:
-				ptr = osc_set_int32(ptr, va_arg(args, int32_t));
+				if(!(ptr = osc_set_int32(ptr, end, va_arg(args, int32_t))))
+					goto cleanup;
 				break;
 			case OSC_FLOAT:
-				ptr = osc_set_float(ptr, (float)va_arg(args, double));
+				if(!(ptr = osc_set_float(ptr, end, (float)va_arg(args, double))))
+					goto cleanup;
 				break;
 			case OSC_STRING:
-				ptr = osc_set_string(ptr, va_arg(args, char *));
+				if(!(ptr = osc_set_string(ptr, end, va_arg(args, char *))))
+					goto cleanup;
 				break;
 			case OSC_BLOB:
-				ptr = osc_set_blob(ptr, va_arg(args, int32_t), va_arg(args, void *));
+				if(!(ptr = osc_set_blob(ptr, end, va_arg(args, int32_t), va_arg(args, void *))))
+					goto cleanup;
 				break;
 
 			case OSC_INT64:
-				ptr = osc_set_int64(ptr, va_arg(args, int64_t));
+				if(!(ptr = osc_set_int64(ptr, end, va_arg(args, int64_t))))
+					goto cleanup;
 				break;
 			case OSC_DOUBLE:
-				ptr = osc_set_double(ptr, va_arg(args, double));
+				if(!(ptr = osc_set_double(ptr, end, va_arg(args, double))))
+					goto cleanup;
 				break;
 			case OSC_TIMETAG:
-				ptr = osc_set_timetag(ptr, va_arg(args, uint64_t));
+				if(!(ptr = osc_set_timetag(ptr, end, va_arg(args, uint64_t))))
+					goto cleanup;
 				break;
 
 			case OSC_TRUE:
@@ -699,22 +705,25 @@ osc_vararg_set(osc_data_t *buf, const char *path, const char *fmt, ...)
 				break;
 
 			case OSC_SYMBOL:
-				ptr = osc_set_symbol(ptr, va_arg(args, char *));
+				if(!(ptr = osc_set_symbol(ptr, end, va_arg(args, char *))))
+					goto cleanup;
 				break;
 			case OSC_CHAR:
-				ptr = osc_set_char(ptr, (char)va_arg(args, int));
+				if(!(ptr = osc_set_char(ptr, end, (char)va_arg(args, int))))
+					goto cleanup;
 				break;
 			case OSC_MIDI:
-				ptr = osc_set_midi(ptr, va_arg(args, uint8_t *));
+				if(!(ptr = osc_set_midi(ptr, end, va_arg(args, uint8_t *))))
+					goto cleanup;
 				break;
 
 			default:
-				//TODO report error
-				break;
+				ptr = NULL;
+				goto cleanup;
 		}
 
+cleanup:
   va_end(args);
 
-	size_t len = ptr-buf;
-	return len;
+	return ptr;
 }
