@@ -360,10 +360,9 @@ osc_set_blob(osc_data_t *buf, const osc_data_t *end, int32_t size, void *payload
 	swap32_t *s = (swap32_t *)buf;
 	s->i = size;
 	s->u = htobe32(s->u);
-	buf += 4;
-	memcpy(buf, payload, size);
-	memset(buf+size, '\0', len-size); // zero padding
-	return buf + len;
+	memcpy(buf + 4, payload, size);
+	memset(buf + 4 + size, '\0', len-size); // zero padding
+	return buf + 4 + len;
 }
 
 __always_inline osc_data_t *
@@ -375,10 +374,9 @@ osc_set_blob_inline(osc_data_t *buf, const osc_data_t *end, int32_t size, void *
 	swap32_t *s = (swap32_t *)buf;
 	s->i = size;
 	s->u = htobe32(s->u);
-	buf += 4;
-	*payload = buf;
-	memset(buf+size, '\0', len-size); // zero padding
-	return buf + len;
+	*payload = buf + 4;
+	memset(buf + 4 + size, '\0', len-size); // zero padding
+	return buf + 4 +len;
 }
 
 __always_inline osc_data_t *
