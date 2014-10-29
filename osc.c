@@ -480,7 +480,7 @@ osc_skip(osc_type_t type, osc_data_t *buf)
 			return buf;
 
 		default:
-			return buf;
+			return NULL;
 	}
 }
 
@@ -519,21 +519,20 @@ osc_get(osc_type_t type, osc_data_t *buf, osc_argument_t *arg)
 			return osc_get_midi(buf, &arg->m);
 
 		default:
-			//TODO report error
-			return buf;
+			return NULL;
 	}
 }
 
-size_t
+osc_data_t *
 osc_vararg_get(osc_data_t *buf, const char **path, const char **fmt, ...)
 {
 	osc_data_t *ptr = buf;
 
-	ptr = osc_get_path(ptr, path);
-	ptr = osc_get_fmt(ptr, fmt);
-
   va_list args;
   va_start (args, fmt);
+
+	ptr = osc_get_path(ptr, path);
+	ptr = osc_get_fmt(ptr, fmt);
 
   const char *type;
   for(type=*fmt; *type != '\0'; type++)
@@ -579,14 +578,13 @@ osc_vararg_get(osc_data_t *buf, const char **path, const char **fmt, ...)
 				break;
 
 			default:
-				//TODO report error
+				ptr = NULL;
 				break;
 		}
 
   va_end(args);
 
-	size_t len = ptr-buf;
-	return len;
+	return ptr;
 }
 
 extern osc_data_t *osc_set_path(osc_data_t *buf, const osc_data_t *end, const char *path);
@@ -659,43 +657,34 @@ osc_vararg_set(osc_data_t *buf, const osc_data_t *end, const char *path, const c
   va_list args;
   va_start (args, fmt);
 
-	if(!(ptr = osc_set_path(ptr, end, path)))
-		goto cleanup;
-	if(!(ptr = osc_set_fmt(ptr, end, fmt)))
-		goto cleanup;
+	ptr = osc_set_path(ptr, end, path);
+	ptr = osc_set_fmt(ptr, end, fmt);
 
   const char *type;
   for(type=fmt; *type != '\0'; type++)
 		switch(*type)
 		{
 			case OSC_INT32:
-				if(!(ptr = osc_set_int32(ptr, end, va_arg(args, int32_t))))
-					goto cleanup;
+				ptr = osc_set_int32(ptr, end, va_arg(args, int32_t));
 				break;
 			case OSC_FLOAT:
-				if(!(ptr = osc_set_float(ptr, end, (float)va_arg(args, double))))
-					goto cleanup;
+				ptr = osc_set_float(ptr, end, (float)va_arg(args, double));
 				break;
 			case OSC_STRING:
-				if(!(ptr = osc_set_string(ptr, end, va_arg(args, char *))))
-					goto cleanup;
+				ptr = osc_set_string(ptr, end, va_arg(args, char *));
 				break;
 			case OSC_BLOB:
-				if(!(ptr = osc_set_blob(ptr, end, va_arg(args, int32_t), va_arg(args, void *))))
-					goto cleanup;
+				ptr = osc_set_blob(ptr, end, va_arg(args, int32_t), va_arg(args, void *));
 				break;
 
 			case OSC_INT64:
-				if(!(ptr = osc_set_int64(ptr, end, va_arg(args, int64_t))))
-					goto cleanup;
+				ptr = osc_set_int64(ptr, end, va_arg(args, int64_t));
 				break;
 			case OSC_DOUBLE:
-				if(!(ptr = osc_set_double(ptr, end, va_arg(args, double))))
-					goto cleanup;
+				ptr = osc_set_double(ptr, end, va_arg(args, double));
 				break;
 			case OSC_TIMETAG:
-				if(!(ptr = osc_set_timetag(ptr, end, va_arg(args, uint64_t))))
-					goto cleanup;
+				ptr = osc_set_timetag(ptr, end, va_arg(args, uint64_t));
 				break;
 
 			case OSC_TRUE:
@@ -705,24 +694,19 @@ osc_vararg_set(osc_data_t *buf, const osc_data_t *end, const char *path, const c
 				break;
 
 			case OSC_SYMBOL:
-				if(!(ptr = osc_set_symbol(ptr, end, va_arg(args, char *))))
-					goto cleanup;
+				ptr = osc_set_symbol(ptr, end, va_arg(args, char *));
 				break;
 			case OSC_CHAR:
-				if(!(ptr = osc_set_char(ptr, end, (char)va_arg(args, int))))
-					goto cleanup;
+				ptr = osc_set_char(ptr, end, (char)va_arg(args, int));
 				break;
 			case OSC_MIDI:
-				if(!(ptr = osc_set_midi(ptr, end, va_arg(args, uint8_t *))))
-					goto cleanup;
+				ptr = osc_set_midi(ptr, end, va_arg(args, uint8_t *));
 				break;
 
 			default:
 				ptr = NULL;
-				goto cleanup;
 		}
 
-cleanup:
   va_end(args);
 
 	return ptr;

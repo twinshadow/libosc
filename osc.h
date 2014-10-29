@@ -175,6 +175,8 @@ osc_bloblen(osc_data_t *buf)
 __always_inline osc_data_t *
 osc_get_path(osc_data_t *buf, const char **path)
 {
+	if(!buf)
+		return NULL;
 	*path = (const char *)buf;
 	return buf + osc_strlen(*path);
 }
@@ -182,6 +184,8 @@ osc_get_path(osc_data_t *buf, const char **path)
 __always_inline osc_data_t *
 osc_get_fmt(osc_data_t *buf, const char **fmt)
 {
+	if(!buf)
+		return NULL;
 	*fmt = (const char *)buf;
 	return buf + osc_strlen(*fmt);
 }
@@ -189,6 +193,8 @@ osc_get_fmt(osc_data_t *buf, const char **fmt)
 __always_inline osc_data_t *
 osc_get_int32(osc_data_t *buf, int32_t *i)
 {
+	if(!buf)
+		return NULL;
 	swap32_t s = {.u = *(uint32_t *)buf};
 	s.u = be32toh(s.u);
 	*i = s.i;
@@ -198,6 +204,8 @@ osc_get_int32(osc_data_t *buf, int32_t *i)
 __always_inline osc_data_t *
 osc_get_float(osc_data_t *buf, float *f)
 {
+	if(!buf)
+		return NULL;
 	swap32_t s = {.u = *(uint32_t *)buf};
 	s.u = be32toh(s.u);
 	*f = s.f;
@@ -207,6 +215,8 @@ osc_get_float(osc_data_t *buf, float *f)
 __always_inline osc_data_t *
 osc_get_string(osc_data_t *buf, const char **s)
 {
+	if(!buf)
+		return NULL;
 	*s = (const char *)buf;
 	return buf + osc_strlen(*s);
 }
@@ -214,6 +224,8 @@ osc_get_string(osc_data_t *buf, const char **s)
 __always_inline osc_data_t *
 osc_get_blob(osc_data_t *buf, osc_blob_t *b)
 {
+	if(!buf)
+		return NULL;
 	b->size = osc_blobsize(buf);
 	b->payload = buf + 4;
 	return buf + 4 + osc_padded_size(b->size);
@@ -222,6 +234,8 @@ osc_get_blob(osc_data_t *buf, osc_blob_t *b)
 __always_inline osc_data_t *
 osc_get_int64(osc_data_t *buf, int64_t *h)
 {
+	if(!buf)
+		return NULL;
 	swap64_t s = {.u = *(uint64_t *)buf};
 	s.u = be64toh(s.u);
 	*h = s.h;
@@ -231,6 +245,8 @@ osc_get_int64(osc_data_t *buf, int64_t *h)
 __always_inline osc_data_t *
 osc_get_double(osc_data_t *buf, double *d)
 {
+	if(!buf)
+		return NULL;
 	swap64_t s = {.u = *(uint64_t *)buf};
 	s.u = be64toh(s.u);
 	*d = s.d;
@@ -240,6 +256,8 @@ osc_get_double(osc_data_t *buf, double *d)
 __always_inline osc_data_t *
 osc_get_timetag(osc_data_t *buf, osc_time_t *t)
 {
+	if(!buf)
+		return NULL;
 	swap64_t s = {.u = *(uint64_t *)buf};
 	s.u = be64toh(s.u);
 	*t = s.t;
@@ -249,6 +267,8 @@ osc_get_timetag(osc_data_t *buf, osc_time_t *t)
 __always_inline osc_data_t *
 osc_get_symbol(osc_data_t *buf, const char **S)
 {
+	if(!buf)
+		return NULL;
 	*S = (const char *)buf;
 	return buf + osc_strlen(*S);
 }
@@ -256,6 +276,8 @@ osc_get_symbol(osc_data_t *buf, const char **S)
 __always_inline osc_data_t *
 osc_get_char(osc_data_t *buf, char *c)
 {
+	if(!buf)
+		return NULL;
 	swap32_t s = {.u = *(uint32_t *)buf};
 	s.u = be32toh(s.u);
 	*c = s.i & 0xff;
@@ -265,20 +287,22 @@ osc_get_char(osc_data_t *buf, char *c)
 __always_inline osc_data_t *
 osc_get_midi(osc_data_t *buf, uint8_t **m)
 {
+	if(!buf)
+		return NULL;
 	*m = (uint8_t *)buf;
 	return buf + 4;
 }
 
 osc_data_t *osc_skip(osc_type_t type, osc_data_t *buf);
 osc_data_t *osc_get(osc_type_t type, osc_data_t *buf, osc_argument_t *arg);
-size_t osc_vararg_get(osc_data_t *buf, const char **path, const char **fmt, ...);
+osc_data_t *osc_vararg_get(osc_data_t *buf, const char **path, const char **fmt, ...);
 
 // write OSC argument to raw buffer
 __always_inline osc_data_t *
 osc_set_path(osc_data_t *buf, const osc_data_t *end, const char *path)
 {
 	size_t len = osc_strlen(path);
-	if(buf + len > end)
+	if(!buf || (buf + len > end) )
 		return NULL;
 	strncpy((char *)buf, path, len);
 	return buf + len;
@@ -288,7 +312,7 @@ __always_inline osc_data_t *
 osc_set_fmt(osc_data_t *buf, const osc_data_t *end, const char *fmt)
 {
 	size_t len = osc_fmtlen(fmt);
-	if(buf + len > end)
+	if(!buf || (buf + len > end) )
 		return NULL;
 	*buf++ = ',';
 	strncpy((char *)buf, fmt, len);
@@ -298,7 +322,7 @@ osc_set_fmt(osc_data_t *buf, const osc_data_t *end, const char *fmt)
 __always_inline osc_data_t *
 osc_set_int32(osc_data_t *buf, const osc_data_t *end, int32_t i)
 {
-	if(buf + 4 > end)
+	if(!buf || (buf + 4 > end) )
 		return NULL;
 	swap32_t *s = (swap32_t *)buf;
 	s->i = i;
@@ -309,7 +333,7 @@ osc_set_int32(osc_data_t *buf, const osc_data_t *end, int32_t i)
 __always_inline osc_data_t *
 osc_set_float(osc_data_t *buf, const osc_data_t *end, float f)
 {
-	if(buf + 4 > end)
+	if(!buf || (buf + 4 > end) )
 		return NULL;
 	swap32_t *s = (swap32_t *)buf;
 	s->f = f;
@@ -321,7 +345,7 @@ __always_inline osc_data_t *
 osc_set_string(osc_data_t *buf, const osc_data_t *end, const char *s)
 {
 	size_t len = osc_strlen(s);
-	if(buf + len > end)
+	if(!buf || (buf + len > end) )
 		return NULL;
 	strncpy((char *)buf, s, len);
 	return buf + len;
@@ -331,7 +355,7 @@ __always_inline osc_data_t *
 osc_set_blob(osc_data_t *buf, const osc_data_t *end, int32_t size, void *payload)
 {
 	size_t len = osc_padded_size(size);
-	if(buf + 4 + len > end)
+	if(!buf || (buf + 4 + len > end) )
 		return NULL;
 	swap32_t *s = (swap32_t *)buf;
 	s->i = size;
@@ -346,7 +370,7 @@ __always_inline osc_data_t *
 osc_set_blob_inline(osc_data_t *buf, const osc_data_t *end, int32_t size, void **payload)
 {
 	size_t len = osc_padded_size(size);
-	if(buf + 4 + len > end)
+	if(!buf || (buf + 4 + len > end) )
 		return NULL;
 	swap32_t *s = (swap32_t *)buf;
 	s->i = size;
@@ -360,7 +384,7 @@ osc_set_blob_inline(osc_data_t *buf, const osc_data_t *end, int32_t size, void *
 __always_inline osc_data_t *
 osc_set_int64(osc_data_t *buf, const osc_data_t *end, int64_t h)
 {
-	if(buf + 8 > end)
+	if(!buf || (buf + 8 > end) )
 		return NULL;
 	swap64_t *s = (swap64_t *)buf;
 	s->h = h;
@@ -371,7 +395,7 @@ osc_set_int64(osc_data_t *buf, const osc_data_t *end, int64_t h)
 __always_inline osc_data_t *
 osc_set_double(osc_data_t *buf, const osc_data_t *end, double d)
 {
-	if(buf + 8 > end)
+	if(!buf || (buf + 8 > end) )
 		return NULL;
 	swap64_t *s = (swap64_t *)buf;
 	s->d = d;
@@ -382,7 +406,7 @@ osc_set_double(osc_data_t *buf, const osc_data_t *end, double d)
 __always_inline osc_data_t *
 osc_set_timetag(osc_data_t *buf, const osc_data_t *end, osc_time_t t)
 {
-	if(buf + 8 > end)
+	if(!buf || (buf + 8 > end) )
 		return NULL;
 	swap64_t *s = (swap64_t *)buf;
 	s->t = t;
@@ -394,7 +418,7 @@ __always_inline osc_data_t *
 osc_set_symbol(osc_data_t *buf, const osc_data_t *end, const char *S)
 {
 	size_t len = osc_strlen(S);
-	if(buf + len > end)
+	if(!buf || (buf + len > end) )
 		return NULL;
 	strncpy((char *)buf, S, len);
 	return buf + len;
@@ -410,7 +434,7 @@ osc_set_char(osc_data_t *buf, const osc_data_t *end, char c)
 __always_inline osc_data_t *
 osc_set_midi(osc_data_t *buf, const osc_data_t *end, uint8_t *m)
 {
-	if(buf + 4 > end)
+	if(!buf || (buf + 4 > end) )
 		return NULL;
 	buf[0] = m[0];
 	buf[1] = m[1];
@@ -422,7 +446,7 @@ osc_set_midi(osc_data_t *buf, const osc_data_t *end, uint8_t *m)
 __always_inline osc_data_t *
 osc_set_midi_inline(osc_data_t *buf, const osc_data_t *end, uint8_t **m)
 {
-	if(buf + 4 > end)
+	if(!buf || (buf + 4 > end) )
 		return NULL;
 	*m = buf;
 	return buf + 4;
@@ -431,7 +455,7 @@ osc_set_midi_inline(osc_data_t *buf, const osc_data_t *end, uint8_t **m)
 __always_inline osc_data_t *
 osc_start_bundle(osc_data_t *buf, const osc_data_t *end, osc_time_t t, osc_data_t **bndl)
 {
-	if(buf + 16 > end)
+	if(!buf || (buf + 16 > end) )
 		return NULL;
 	*bndl = buf;
 	strncpy((char *)buf, "#bundle", 8);
@@ -452,7 +476,7 @@ osc_end_bundle(osc_data_t *buf, const osc_data_t *end, osc_data_t *bndl)
 __always_inline osc_data_t *
 osc_start_bundle_item(osc_data_t *buf, const osc_data_t *end, osc_data_t **itm)
 {
-	if(buf + 4 > end)
+	if(!buf || (buf + 4 > end) )
 		return NULL;
 	*itm = buf;
 	return buf + 4;
