@@ -650,12 +650,9 @@ osc_set(osc_data_t *buf, const osc_data_t *end, osc_type_t type, osc_argument_t 
 }
 
 osc_data_t *
-osc_set_vararg(osc_data_t *buf, const osc_data_t *end, const char *path, const char *fmt, ...)
+osc_set_varlist(osc_data_t *buf, const osc_data_t *end, const char *path, const char *fmt, va_list args)
 {
 	osc_data_t *ptr = buf;
-
-  va_list args;
-  va_start (args, fmt);
 
 	ptr = osc_set_path(ptr, end, path);
 	ptr = osc_set_fmt(ptr, end, fmt);
@@ -706,6 +703,37 @@ osc_set_vararg(osc_data_t *buf, const osc_data_t *end, const char *path, const c
 			default:
 				ptr = NULL;
 		}
+
+	return ptr;
+}
+
+osc_data_t *
+osc_set_vararg(osc_data_t *buf, const osc_data_t *end, const char *path, const char *fmt, ...)
+{
+	osc_data_t *ptr = buf;
+
+  va_list args;
+  va_start (args, fmt);
+
+	ptr = osc_set_varlist(ptr, end, path, fmt, args);
+
+  va_end(args);
+
+	return ptr;
+}
+
+osc_data_t *
+osc_set_bundle_item(osc_data_t *buf, const osc_data_t *end, const char *path, const char *fmt, ...)
+{
+	osc_data_t *ptr = buf;
+	osc_data_t *itm;
+
+  va_list args;
+  va_start (args, fmt);
+
+	ptr = osc_start_bundle_item(ptr, end, &itm);
+	ptr = osc_set_varlist(ptr, end, path, fmt, args);
+	ptr = osc_end_bundle_item(ptr, end, itm);
 
   va_end(args);
 

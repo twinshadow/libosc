@@ -31,6 +31,7 @@ extern "C" {
 #include <endian.h>
 #include <stdint.h>
 #include <string.h>
+#include <stdarg.h>
 
 #define osc_padded_size(size) ( ( (size_t)(size) + 3 ) & ( ~3 ) )
 
@@ -494,7 +495,9 @@ osc_end_bundle_item(osc_data_t *buf, const osc_data_t *end, osc_data_t *itm)
 }
 
 osc_data_t *osc_set(osc_data_t *buf, const osc_data_t *end, osc_type_t type, osc_argument_t *arg);
+osc_data_t *osc_set_varlist(osc_data_t *buf, const osc_data_t *end, const char *path, const char *fmt, va_list args);
 osc_data_t *osc_set_vararg(osc_data_t *buf, const osc_data_t *end, const char *path, const char *fmt, ...);
+osc_data_t *osc_set_bundle_item(osc_data_t *buf, const osc_data_t *end, const char *path, const char *fmt, ...);
 
 #ifdef __cplusplus
 }
