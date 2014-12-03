@@ -146,19 +146,19 @@ int osc_check_bundle(osc_data_t *buf, size_t size);
 int osc_check_packet(osc_data_t *buf, size_t size);
 
 // OSC object lengths
-__always_inline size_t
+static inline size_t
 osc_strlen(const char *buf)
 {
 	return osc_padded_size(strlen(buf) + 1);
 }
 
-__always_inline size_t
+static inline size_t
 osc_fmtlen(const char *buf)
 {
 	return osc_padded_size(strlen(buf) + 2) - 1;
 }
 
-__always_inline size_t
+static inline size_t
 osc_blobsize(osc_data_t *buf)
 {
 	swap32_t s = {.u = *(uint32_t *)buf}; 
@@ -166,14 +166,14 @@ osc_blobsize(osc_data_t *buf)
 	return s.i;
 }
 
-__always_inline size_t
+static inline size_t
 osc_bloblen(osc_data_t *buf)
 {
 	return 4 + osc_blobsize(buf);
 }
 
 // get OSC arguments from raw buffer
-__always_inline osc_data_t *
+static inline osc_data_t *
 osc_get_path(osc_data_t *buf, const char **path)
 {
 	if(!buf)
@@ -182,7 +182,7 @@ osc_get_path(osc_data_t *buf, const char **path)
 	return buf + osc_strlen(*path);
 }
 
-__always_inline osc_data_t *
+static inline osc_data_t *
 osc_get_fmt(osc_data_t *buf, const char **fmt)
 {
 	if(!buf)
@@ -191,7 +191,7 @@ osc_get_fmt(osc_data_t *buf, const char **fmt)
 	return buf + osc_strlen(*fmt);
 }
 
-__always_inline osc_data_t *
+static inline osc_data_t *
 osc_get_int32(osc_data_t *buf, int32_t *i)
 {
 	if(!buf)
@@ -202,7 +202,7 @@ osc_get_int32(osc_data_t *buf, int32_t *i)
 	return buf + 4;
 }
 
-__always_inline osc_data_t *
+static inline osc_data_t *
 osc_get_float(osc_data_t *buf, float *f)
 {
 	if(!buf)
@@ -213,7 +213,7 @@ osc_get_float(osc_data_t *buf, float *f)
 	return buf + 4;
 }
 
-__always_inline osc_data_t *
+static inline osc_data_t *
 osc_get_string(osc_data_t *buf, const char **s)
 {
 	if(!buf)
@@ -222,7 +222,7 @@ osc_get_string(osc_data_t *buf, const char **s)
 	return buf + osc_strlen(*s);
 }
 
-__always_inline osc_data_t *
+static inline osc_data_t *
 osc_get_blob(osc_data_t *buf, osc_blob_t *b)
 {
 	if(!buf)
@@ -232,7 +232,7 @@ osc_get_blob(osc_data_t *buf, osc_blob_t *b)
 	return buf + 4 + osc_padded_size(b->size);
 }
 
-__always_inline osc_data_t *
+static inline osc_data_t *
 osc_get_int64(osc_data_t *buf, int64_t *h)
 {
 	if(!buf)
@@ -243,7 +243,7 @@ osc_get_int64(osc_data_t *buf, int64_t *h)
 	return buf + 8;
 }
 
-__always_inline osc_data_t *
+static inline osc_data_t *
 osc_get_double(osc_data_t *buf, double *d)
 {
 	if(!buf)
@@ -254,7 +254,7 @@ osc_get_double(osc_data_t *buf, double *d)
 	return buf + 8;
 }
 
-__always_inline osc_data_t *
+static inline osc_data_t *
 osc_get_timetag(osc_data_t *buf, osc_time_t *t)
 {
 	if(!buf)
@@ -265,7 +265,7 @@ osc_get_timetag(osc_data_t *buf, osc_time_t *t)
 	return buf + 8;
 }
 
-__always_inline osc_data_t *
+static inline osc_data_t *
 osc_get_symbol(osc_data_t *buf, const char **S)
 {
 	if(!buf)
@@ -274,7 +274,7 @@ osc_get_symbol(osc_data_t *buf, const char **S)
 	return buf + osc_strlen(*S);
 }
 
-__always_inline osc_data_t *
+static inline osc_data_t *
 osc_get_char(osc_data_t *buf, char *c)
 {
 	if(!buf)
@@ -285,7 +285,7 @@ osc_get_char(osc_data_t *buf, char *c)
 	return buf + 4;
 }
 
-__always_inline osc_data_t *
+static inline osc_data_t *
 osc_get_midi(osc_data_t *buf, uint8_t **m)
 {
 	if(!buf)
@@ -299,7 +299,7 @@ osc_data_t *osc_get(osc_type_t type, osc_data_t *buf, osc_argument_t *arg);
 osc_data_t *osc_get_vararg(osc_data_t *buf, const char **path, const char **fmt, ...);
 
 // write OSC argument to raw buffer
-__always_inline osc_data_t *
+static inline osc_data_t *
 osc_set_path(osc_data_t *buf, const osc_data_t *end, const char *path)
 {
 	size_t len = osc_strlen(path);
@@ -309,7 +309,7 @@ osc_set_path(osc_data_t *buf, const osc_data_t *end, const char *path)
 	return buf + len;
 }
 
-__always_inline osc_data_t *
+static inline osc_data_t *
 osc_set_fmt(osc_data_t *buf, const osc_data_t *end, const char *fmt)
 {
 	size_t len = osc_fmtlen(fmt);
@@ -320,7 +320,7 @@ osc_set_fmt(osc_data_t *buf, const osc_data_t *end, const char *fmt)
 	return buf + len;
 }
 
-__always_inline osc_data_t *
+static inline osc_data_t *
 osc_set_int32(osc_data_t *buf, const osc_data_t *end, int32_t i)
 {
 	if(!buf || (buf + 4 > end) )
@@ -331,7 +331,7 @@ osc_set_int32(osc_data_t *buf, const osc_data_t *end, int32_t i)
 	return buf + 4;
 }
 
-__always_inline osc_data_t *
+static inline osc_data_t *
 osc_set_float(osc_data_t *buf, const osc_data_t *end, float f)
 {
 	if(!buf || (buf + 4 > end) )
@@ -342,7 +342,7 @@ osc_set_float(osc_data_t *buf, const osc_data_t *end, float f)
 	return buf + 4;
 }
 
-__always_inline osc_data_t *
+static inline osc_data_t *
 osc_set_string(osc_data_t *buf, const osc_data_t *end, const char *s)
 {
 	size_t len = osc_strlen(s);
@@ -352,7 +352,7 @@ osc_set_string(osc_data_t *buf, const osc_data_t *end, const char *s)
 	return buf + len;
 }
 
-__always_inline osc_data_t *
+static inline osc_data_t *
 osc_set_blob(osc_data_t *buf, const osc_data_t *end, int32_t size, void *payload)
 {
 	size_t len = osc_padded_size(size);
@@ -366,7 +366,7 @@ osc_set_blob(osc_data_t *buf, const osc_data_t *end, int32_t size, void *payload
 	return buf + 4 + len;
 }
 
-__always_inline osc_data_t *
+static inline osc_data_t *
 osc_set_blob_inline(osc_data_t *buf, const osc_data_t *end, int32_t size, void **payload)
 {
 	size_t len = osc_padded_size(size);
@@ -380,7 +380,7 @@ osc_set_blob_inline(osc_data_t *buf, const osc_data_t *end, int32_t size, void *
 	return buf + 4 +len;
 }
 
-__always_inline osc_data_t *
+static inline osc_data_t *
 osc_set_int64(osc_data_t *buf, const osc_data_t *end, int64_t h)
 {
 	if(!buf || (buf + 8 > end) )
@@ -391,7 +391,7 @@ osc_set_int64(osc_data_t *buf, const osc_data_t *end, int64_t h)
 	return buf + 8;
 }
 
-__always_inline osc_data_t *
+static inline osc_data_t *
 osc_set_double(osc_data_t *buf, const osc_data_t *end, double d)
 {
 	if(!buf || (buf + 8 > end) )
@@ -402,7 +402,7 @@ osc_set_double(osc_data_t *buf, const osc_data_t *end, double d)
 	return buf + 8;
 }
 
-__always_inline osc_data_t *
+static inline osc_data_t *
 osc_set_timetag(osc_data_t *buf, const osc_data_t *end, osc_time_t t)
 {
 	if(!buf || (buf + 8 > end) )
@@ -413,7 +413,7 @@ osc_set_timetag(osc_data_t *buf, const osc_data_t *end, osc_time_t t)
 	return buf + 8;
 }
 
-__always_inline osc_data_t *
+static inline osc_data_t *
 osc_set_symbol(osc_data_t *buf, const osc_data_t *end, const char *S)
 {
 	size_t len = osc_strlen(S);
@@ -423,14 +423,14 @@ osc_set_symbol(osc_data_t *buf, const osc_data_t *end, const char *S)
 	return buf + len;
 }
 
-__always_inline osc_data_t *
+static inline osc_data_t *
 osc_set_char(osc_data_t *buf, const osc_data_t *end, char c)
 {
 	int32_t i = c;
 	return osc_set_int32(buf, end, i);
 }
 
-__always_inline osc_data_t *
+static inline osc_data_t *
 osc_set_midi(osc_data_t *buf, const osc_data_t *end, uint8_t *m)
 {
 	if(!buf || (buf + 4 > end) )
@@ -442,7 +442,7 @@ osc_set_midi(osc_data_t *buf, const osc_data_t *end, uint8_t *m)
 	return buf + 4;
 }
 
-__always_inline osc_data_t *
+static inline osc_data_t *
 osc_set_midi_inline(osc_data_t *buf, const osc_data_t *end, uint8_t **m)
 {
 	if(!buf || (buf + 4 > end) )
@@ -451,7 +451,7 @@ osc_set_midi_inline(osc_data_t *buf, const osc_data_t *end, uint8_t **m)
 	return buf + 4;
 }
 
-__always_inline osc_data_t *
+static inline osc_data_t *
 osc_start_bundle(osc_data_t *buf, const osc_data_t *end, osc_time_t t, osc_data_t **bndl)
 {
 	if(!buf || (buf + 16 > end) )
@@ -462,7 +462,7 @@ osc_start_bundle(osc_data_t *buf, const osc_data_t *end, osc_time_t t, osc_data_
 	return osc_set_timetag(buf, end, t);
 }
 
-__always_inline osc_data_t *
+static inline osc_data_t *
 osc_end_bundle(osc_data_t *buf, const osc_data_t *end, osc_data_t *bndl)
 {
 	size_t len =  buf - (bndl + 16);
@@ -472,7 +472,7 @@ osc_end_bundle(osc_data_t *buf, const osc_data_t *end, osc_data_t *bndl)
 		return bndl;
 }
 
-__always_inline osc_data_t *
+static inline osc_data_t *
 osc_start_bundle_item(osc_data_t *buf, const osc_data_t *end, osc_data_t **itm)
 {
 	if(!buf || (buf + 4 > end) )
@@ -481,7 +481,7 @@ osc_start_bundle_item(osc_data_t *buf, const osc_data_t *end, osc_data_t **itm)
 	return buf + 4;
 }
 
-__always_inline osc_data_t *
+static inline osc_data_t *
 osc_end_bundle_item(osc_data_t *buf, const osc_data_t *end, osc_data_t *itm)
 {
 	size_t len = buf - (itm + 4);
