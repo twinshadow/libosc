@@ -28,10 +28,11 @@
 extern "C" {
 #endif
 
-#include <endian.h>
 #include <stdint.h>
 #include <string.h>
 #include <stdarg.h>
+
+#include <portable_endian.h>
 
 #define osc_padded_size(size) ( ( (size_t)(size) + 3 ) & ( ~3 ) )
 
