@@ -255,7 +255,7 @@ osc_check_fmt(const char *format, int offset)
 
 // extract nested bundles with non-matching timestamps
 static inline int
-_unroll_partial(osc_data_t *buf, size_t size, osc_unroll_inject_t *inject, void *data)
+_unroll_partial(osc_data_t *buf, size_t size, const osc_unroll_inject_t *inject, void *data)
 {
 	if(strncmp((const char *)buf, "#bundle", 8)) // bundle header valid?
 		return 0;
@@ -332,7 +332,7 @@ _unroll_partial(osc_data_t *buf, size_t size, osc_unroll_inject_t *inject, void 
 
 // fully unroll bundle into single messages
 static inline int
-_unroll_full(const osc_data_t *buf, size_t size, osc_unroll_inject_t *inject, void *data)
+_unroll_full(const osc_data_t *buf, size_t size, const osc_unroll_inject_t *inject, void *data)
 {
 	if(strncmp((char *)buf, "#bundle", 8)) // bundle header valid?
 		return 0;
@@ -392,7 +392,7 @@ _unroll_full(const osc_data_t *buf, size_t size, osc_unroll_inject_t *inject, vo
 
 static inline int
 osc_unroll_packet(osc_data_t *buf, size_t size, osc_unroll_mode_t mode,
-	osc_unroll_inject_t *inject, void *data)
+	const osc_unroll_inject_t *inject, void *data)
 {
 	char c = *(char *)buf;
 	switch(c)
