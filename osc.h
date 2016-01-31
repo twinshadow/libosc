@@ -148,16 +148,16 @@ typedef enum _osc_type_t {
 	OSC_FLOAT		=	'f',
 	OSC_STRING	=	's',
 	OSC_BLOB		=	'b',
-	
+
 	OSC_TRUE		=	'T',
 	OSC_FALSE		=	'F',
 	OSC_NIL			=	'N',
 	OSC_BANG		=	'I',
-	
+
 	OSC_INT64		=	'h',
 	OSC_DOUBLE	=	'd',
 	OSC_TIMETAG	=	't',
-	
+
 	OSC_SYMBOL	=	'S',
 	OSC_CHAR		=	'c',
 	OSC_MIDI		=	'm'
@@ -232,7 +232,7 @@ osc_check_path(const char *path)
 	return 1;
 }
 
-// check for valid format string 
+// check for valid format string
 static inline int
 osc_check_fmt(const char *format, int offset)
 {
@@ -320,7 +320,7 @@ _unroll_partial(osc_data_t *buf, size_t size, const osc_unroll_inject_t *inject,
 		ptr += hsize;
 	}
 
-	size_t nlen = dst - buf; 
+	size_t nlen = dst - buf;
 	inject->bundle(buf, nlen, data);
 
 	return 1;
@@ -435,7 +435,7 @@ osc_fmtlen(const char *buf)
 static inline size_t
 osc_blobsize(const osc_data_t *buf)
 {
-	swap32_t s = {.u = *(const uint32_t *)buf}; 
+	swap32_t s = {.u = *(const uint32_t *)buf};
 	s.u = be32toh(s.u);
 	return s.i;
 }
@@ -765,7 +765,7 @@ osc_check_bundle(const osc_data_t *buf, size_t size)
 {
 	const osc_data_t *ptr = buf;
 	const osc_data_t *end = buf + size;
-	
+
 	if(strncmp((const char *)ptr, "#bundle", 8)) // bundle header valid?
 		return 0;
 	ptr += 16; // skip bundle header
@@ -799,7 +799,7 @@ static inline int
 osc_check_packet(const osc_data_t *buf, size_t size)
 {
 	const osc_data_t *ptr = buf;
-	
+
 	switch(*ptr)
 	{
 		case '#':
@@ -1204,12 +1204,12 @@ osc_set_vararg(osc_data_t *buf, const osc_data_t *end, const char *path,
 {
 	osc_data_t *ptr = buf;
 
-  va_list args;
-  va_start (args, fmt);
+	va_list args;
+	va_start (args, fmt);
 
 	ptr = osc_set_varlist(ptr, end, path, fmt, args);
 
-  va_end(args);
+	va_end(args);
 
 	return ptr;
 }
@@ -1221,14 +1221,14 @@ osc_set_bundle_item(osc_data_t *buf, const osc_data_t *end, const char *path,
 	osc_data_t *ptr = buf;
 	osc_data_t *itm;
 
-  va_list args;
-  va_start (args, fmt);
+	va_list args;
+	va_start (args, fmt);
 
 	ptr = osc_start_bundle_item(ptr, end, &itm);
 	ptr = osc_set_varlist(ptr, end, path, fmt, args);
 	ptr = osc_end_bundle_item(ptr, end, itm);
 
-  va_end(args);
+	va_end(args);
 
 	return ptr;
 }
