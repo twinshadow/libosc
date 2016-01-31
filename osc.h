@@ -18,10 +18,6 @@
 #ifndef _LIB_OSC_H_
 #define _LIB_OSC_H_
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <stdint.h>
 #include <string.h>
 #include <stdarg.h>
@@ -1237,8 +1233,4 @@ osc_set_bundle_item(osc_data_t *buf, const osc_data_t *end, const char *path,
 	return ptr;
 }
 
-#ifdef __cplusplus
-}
-#endif
-
-#endif // _LIB_OSC_H_
+#endif /* _LIB_OSC_H_ */
