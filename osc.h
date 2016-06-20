@@ -66,23 +66,33 @@ union _swap64_t {
 };
 
 typedef enum _osc_type_t {
-	OSC_INT32		=	'i',
-	OSC_FLOAT		=	'f',
+	/* 32bit values */
+	OSC_INT32	=	'i',
+	OSC_FLOAT	=	'f',
 	OSC_STRING	=	's',
-	OSC_BLOB		=	'b',
+	OSC_BLOB	=	'b',
 
-	OSC_TRUE		=	'T',
-	OSC_FALSE		=	'F',
-	OSC_NIL			=	'N',
-	OSC_BANG		=	'I',
+	/* flags, no value */
+	OSC_TRUE	=	'T',
+	OSC_FALSE	=	'F',
+	OSC_NIL		=	'N',
+	OSC_BANG	=	'I',
 
-	OSC_INT64		=	'h',
+	/* 64-bit values */
+	OSC_INT64	=	'h',
 	OSC_DOUBLE	=	'd',
 	OSC_TIMETAG	=	't',
 
+	/* crazy stuff */
 	OSC_SYMBOL	=	'S',
-	OSC_CHAR		=	'c',
-	OSC_MIDI		=	'm'
+	OSC_CHAR	=	'c',
+	OSC_MIDI	=	'm',
+	OSC_RGBA	=	'r',
+
+	/* Array syntax? */
+	OSC_AOPEN	=	'[',
+	OSC_ACLOSE	=	']',
+
 } osc_type_t;
 
 struct _osc_method_t {
@@ -123,18 +133,23 @@ struct _osc_unroll_inject_t {
 	osc_unroll_bundle_inject_cb_t bundle;
 };
 
-// characters not allowed in OSC path string
+/* characters not allowed in OSC path string */
 static const char invalid_path_chars [] = {
 	' ', '#',
+	'*', ',', '/', '?',
+	'[', ']', '{', '}',
 	'\0'
 };
 
-// allowed characters in OSC format string
-static const char valid_format_chars [] = {
+/* allowed characters in OSC format string */
+static const char valid_format_chars[] = {
 	OSC_INT32, OSC_FLOAT, OSC_STRING, OSC_BLOB,
+#if ! defined(OSC_STRICT)
 	OSC_TRUE, OSC_FALSE, OSC_NIL, OSC_BANG,
 	OSC_INT64, OSC_DOUBLE, OSC_TIMETAG,
-	OSC_SYMBOL, OSC_CHAR, OSC_MIDI,
+	OSC_SYMBOL, OSC_CHAR, OSC_MIDI, OSC_RGBA,
+	OSC_AOPEN, OSC_ACLOSE,
+#endif
 	'\0'
 };
 
@@ -491,45 +506,12 @@ osc_get_midi(const osc_data_t *buf, const uint8_t **m)
 }
 
 static inline const osc_data_t *
-osc_skip(osc_type_t type, const osc_data_t *buf)
-{
-	switch(type)
-	{
-		case OSC_INT32:
-		case OSC_FLOAT:
-		case OSC_MIDI:
-		case OSC_CHAR:
-			return buf + 4;
-
-		case OSC_STRING:
-		case OSC_SYMBOL:
-			return buf + osc_strlen((const char *)buf);
-
-		case OSC_BLOB:
-			return buf + osc_bloblen(buf);
-
-		case OSC_INT64:
-		case OSC_DOUBLE:
-		case OSC_TIMETAG:
-			return buf + 8;
-
-		case OSC_TRUE:
-		case OSC_FALSE:
-		case OSC_NIL:
-		case OSC_BANG:
-			return buf;
-
-		default:
-			return NULL;
-	}
-}
-
-static inline const osc_data_t *
 osc_get(osc_type_t type, const osc_data_t *buf, osc_argument_t *arg)
 {
 	switch(type)
 	{
 		case OSC_INT32:
+		case OSC_RGBA:
 			return osc_get_int32(buf, &arg->i);
 		case OSC_FLOAT:
 			return osc_get_float(buf, &arg->f);
@@ -1028,6 +1010,7 @@ osc_set(osc_data_t *buf, const osc_data_t *end, osc_type_t type, osc_argument_t 
 	switch(type)
 	{
 		case OSC_INT32:
+		case OSC_RGBA:
 			return osc_set_int32(buf, end, arg->i);
 		case OSC_FLOAT:
 			return osc_set_float(buf, end, arg->f);
